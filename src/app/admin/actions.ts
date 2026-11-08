@@ -2,6 +2,7 @@
 
 import { FieldValue } from 'firebase-admin/firestore';
 import { updateTag } from 'next/cache';
+import type { ActionResult } from '@/lib/action-result';
 import { NotEditorError, requireEditor } from '@/lib/editors';
 import {
   POSTS_COLLECTION,
@@ -18,6 +19,20 @@ import { slugify } from '@/lib/utils';
 // Every action takes the caller's Firebase ID token; requireEditor checks
 // it against the `editors` collection before doing anything.
 
+// Runs an action body and reports failures as a readable message. Errors
+// are also logged so they appear in Vercel's runtime logs.
+async function run<T>(
+  name: string,
+  fn: () => Promise<T>
+): Promise<ActionResult<T>> {
+  try {
+    return { ok: true, data: await fn() };
+  } catch (error) {
+    console.error(`${name} failed:`, error);
+    return { ok: false, error: (error as Error).message || 'Unknown error' };
+  }
+}
+
 export async function checkEditor(idToken: string) {
   try {
     await requireEditor(idToken);
@@ -31,7 +46,13 @@ export async function checkEditor(idToken: string) {
   }
 }
 
-export async function listAllPosts(idToken: string): Promise<PostMeta[]> {
+export async function listAllPosts(
+  idToken: string
+): Promise<ActionResult<PostMeta[]>> {
+  return run('listAllPosts', () => listAllPostsImpl(idToken));
+}
+
+async function listAllPostsImpl(idToken: string): Promise<PostMeta[]> {
   const { db } = await requireEditor(idToken);
   const snap = await db.collection(POSTS_COLLECTION).get();
   return snap.docs
@@ -40,6 +61,13 @@ export async function listAllPosts(idToken: string): Promise<PostMeta[]> {
 }
 
 export async function getPostForEditing(
+  idToken: string,
+  id: string
+): Promise<ActionResult<Post | null>> {
+  return run('getPostForEditing', () => getPostForEditingImpl(idToken, id));
+}
+
+async function getPostForEditingImpl(
   idToken: string,
   id: string
 ): Promise<Post | null> {
@@ -61,6 +89,14 @@ export interface PostInput {
 }
 
 export async function savePost(
+  idToken: string,
+  id: string | null,
+  input: PostInput
+): Promise<ActionResult<{ id: string; slug: string }>> {
+  return run('savePost', () => savePostImpl(idToken, id, input));
+}
+
+async function savePostImpl(
   idToken: string,
   id: string | null,
   input: PostInput
@@ -121,8 +157,16 @@ export async function savePost(
   return { id: ref.id, slug };
 }
 
-export async function deletePost(idToken: string, id: string) {
+export async function deletePost(
+  idToken: string,
+  id: string
+): Promise<ActionResult<null>> {
+  return run('deletePost', () => deletePostImpl(idToken, id));
+}
+
+async function deletePostImpl(idToken: string, id: string) {
   const { db } = await requireEditor(idToken);
   await db.collection(POSTS_COLLECTION).doc(id).delete();
   updateTag(POSTS_TAG);
+  return null;
 }
