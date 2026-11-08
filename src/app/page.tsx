@@ -9,7 +9,7 @@ export default async function HomePage() {
     <>
       <PageHeader
         eyebrow="BetterPuertoPrincesa.org"
-        title="The Better Puerto Princesa Blog"
+        title="The BetterPuertoPrincesa Blog"
         subtitle="News, guides and updates from the volunteers building a better portal for Puerto Princesa. Learn what's new on the site, how to get things done at City Hall, and where your city's money goes."
         breadcrumbs={[
           {

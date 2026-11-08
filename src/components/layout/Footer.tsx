@@ -43,7 +43,7 @@ export default function Footer() {
           <div>
             <Image
               src="/logos/logo-white.svg"
-              alt="Better Puerto Princesa"
+              alt="BetterPuertoPrincesa"
               width={851}
               height={418}
               className="mb-4 h-16 w-auto"
