@@ -23,6 +23,9 @@ export async function checkEditor(idToken: string) {
     await requireEditor(idToken);
     return { ok: true as const };
   } catch (error) {
+    // Shows up in Vercel's runtime logs, which helps when an editor reports
+    // being stuck or refused.
+    console.error('checkEditor failed:', error);
     return { ok: false as const, message: (error as Error).message };
   }
 }

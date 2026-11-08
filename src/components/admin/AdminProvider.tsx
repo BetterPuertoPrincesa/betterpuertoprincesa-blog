@@ -35,6 +35,7 @@ type State =
   | { kind: 'loading' }
   | { kind: 'signed-out' }
   | { kind: 'denied'; user: User; message: string }
+  | { kind: 'error'; user: User; message: string }
   | { kind: 'ready'; user: User };
 
 function Panel({ children }: { children: React.ReactNode }) {
@@ -65,12 +66,18 @@ export default function AdminProvider({
     return onAuthStateChanged(clientAuth(), async user => {
       if (!user) return setState({ kind: 'signed-out' });
       setState({ kind: 'loading' });
-      const result = await checkEditor(await user.getIdToken());
-      setState(
-        result.ok
-          ? { kind: 'ready', user }
-          : { kind: 'denied', user, message: result.message }
-      );
+      // If the check itself fails (server error, network, or a page left
+      // open across a deploy), show it instead of spinning forever.
+      try {
+        const result = await checkEditor(await user.getIdToken());
+        setState(
+          result.ok
+            ? { kind: 'ready', user }
+            : { kind: 'denied', user, message: result.message }
+        );
+      } catch (e) {
+        setState({ kind: 'error', user, message: (e as Error).message });
+      }
     });
   }, []);
 
@@ -120,6 +127,39 @@ export default function AdminProvider({
           Sign in with Google
         </button>
         {error && <p className="mt-4 text-sm text-error-600">{error}</p>}
+      </Panel>
+    );
+  }
+
+  if (state.kind === 'error') {
+    return (
+      <Panel>
+        <h1 className="font-display text-2xl">
+          We couldn&apos;t check your access
+        </h1>
+        <p className="mt-3 text-gray-700">
+          Something went wrong talking to the server. Reloading the page usually
+          fixes it, especially right after the site was updated.
+        </p>
+        <p className="mt-3 rounded bg-gray-100 px-2 py-1 font-mono text-xs break-all text-gray-700">
+          {state.message}
+        </p>
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-full bg-primary-700 px-5 py-2.5 font-bold text-white hover:bg-primary-800"
+          >
+            Reload
+          </button>
+          <button
+            type="button"
+            onClick={() => signOut(clientAuth())}
+            className="text-sm font-bold text-primary-700 underline underline-offset-4"
+          >
+            Sign out
+          </button>
+        </div>
       </Panel>
     );
   }
