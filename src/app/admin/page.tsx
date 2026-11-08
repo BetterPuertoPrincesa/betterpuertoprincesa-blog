@@ -6,6 +6,7 @@ import { LoaderCircle, Plus } from 'lucide-react';
 import { useAdmin } from '@/components/admin/AdminProvider';
 import type { PostMeta } from '@/lib/posts';
 import { formatDate } from '@/lib/utils';
+import { unwrap } from '@/lib/action-result';
 import { listAllPosts } from './actions';
 
 export default function AdminHome() {
@@ -15,7 +16,7 @@ export default function AdminHome() {
 
   useEffect(() => {
     getToken()
-      .then(listAllPosts)
+      .then(token => unwrap(listAllPosts(token)))
       .then(setPosts)
       .catch(e => setError((e as Error).message));
   }, [getToken]);

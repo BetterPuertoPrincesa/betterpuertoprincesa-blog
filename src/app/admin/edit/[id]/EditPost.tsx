@@ -5,6 +5,7 @@ import { LoaderCircle } from 'lucide-react';
 import { useAdmin } from '@/components/admin/AdminProvider';
 import PostForm from '@/components/admin/PostForm';
 import type { Post } from '@/lib/posts';
+import { unwrap } from '@/lib/action-result';
 import { getPostForEditing } from '../../actions';
 
 export default function EditPost({
@@ -19,7 +20,7 @@ export default function EditPost({
 
   useEffect(() => {
     getToken()
-      .then(token => getPostForEditing(token, id))
+      .then(token => unwrap(getPostForEditing(token, id)))
       .then(setPost)
       .catch(e => setError((e as Error).message));
   }, [getToken, id]);

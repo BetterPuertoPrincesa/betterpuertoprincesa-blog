@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ExternalLink, LoaderCircle, Trash } from 'lucide-react';
 import { deletePost, savePost, type PostInput } from '@/app/admin/actions';
+import { unwrap } from '@/lib/action-result';
 import type { Post, PostStatus } from '@/lib/posts';
 import { uploadImage } from '@/lib/upload';
 import { slugify } from '@/lib/utils';
@@ -53,7 +54,9 @@ export default function PostForm({ post }: { post?: Post }) {
     };
     startTransition(async () => {
       try {
-        const saved = await savePost(await getToken(), post?.id ?? null, input);
+        const saved = await unwrap(
+          savePost(await getToken(), post?.id ?? null, input)
+        );
         setSlug(saved.slug);
         if (!post) {
           router.replace(`/admin/edit/${saved.id}`);
@@ -75,7 +78,7 @@ export default function PostForm({ post }: { post?: Post }) {
       return;
     startTransition(async () => {
       try {
-        await deletePost(await getToken(), post.id);
+        await unwrap(deletePost(await getToken(), post.id));
         router.replace('/admin');
       } catch (e) {
         setError((e as Error).message);
