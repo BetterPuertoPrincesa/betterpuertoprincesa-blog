@@ -2,7 +2,7 @@
 
 import { FieldValue } from 'firebase-admin/firestore';
 import { updateTag } from 'next/cache';
-import { requireEditor } from '@/lib/editors';
+import { NotEditorError, requireEditor } from '@/lib/editors';
 import {
   POSTS_COLLECTION,
   POSTS_TAG,
@@ -21,9 +21,13 @@ import { slugify } from '@/lib/utils';
 export async function checkEditor(idToken: string) {
   try {
     await requireEditor(idToken);
-    return { ok: true as const };
+    return { status: 'editor' as const };
   } catch (error) {
-    return { ok: false as const, message: (error as Error).message };
+    if (error instanceof NotEditorError) return { status: 'pending' as const };
+    // Shows up in Vercel's runtime logs, which helps when an editor reports
+    // being stuck or refused.
+    console.error('checkEditor failed:', error);
+    return { status: 'error' as const, message: (error as Error).message };
   }
 }
 

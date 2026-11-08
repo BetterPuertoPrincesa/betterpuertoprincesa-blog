@@ -14,7 +14,7 @@ import {
   signOut,
   type User,
 } from 'firebase/auth';
-import { LoaderCircle, LogOut } from 'lucide-react';
+import { Clock, LoaderCircle, LogOut } from 'lucide-react';
 import { checkEditor } from '@/app/admin/actions';
 import { clientAuth, isFirebaseConfigured } from '@/lib/firebase/client';
 
@@ -34,7 +34,8 @@ export function useAdmin() {
 type State =
   | { kind: 'loading' }
   | { kind: 'signed-out' }
-  | { kind: 'denied'; user: User; message: string }
+  | { kind: 'pending'; user: User }
+  | { kind: 'error'; user: User; message: string }
   | { kind: 'ready'; user: User };
 
 function Panel({ children }: { children: React.ReactNode }) {
@@ -60,19 +61,27 @@ export default function AdminProvider({
     return current.getIdToken();
   }, []);
 
+  const verify = useCallback(async (user: User) => {
+    setState({ kind: 'loading' });
+    // If the check itself fails (server error, network, or a page left
+    // open across a deploy), show it instead of spinning forever.
+    try {
+      const result = await checkEditor(await user.getIdToken());
+      if (result.status === 'editor') setState({ kind: 'ready', user });
+      else if (result.status === 'pending') setState({ kind: 'pending', user });
+      else setState({ kind: 'error', user, message: result.message });
+    } catch (e) {
+      setState({ kind: 'error', user, message: (e as Error).message });
+    }
+  }, []);
+
   useEffect(() => {
     if (!isFirebaseConfigured) return;
-    return onAuthStateChanged(clientAuth(), async user => {
-      if (!user) return setState({ kind: 'signed-out' });
-      setState({ kind: 'loading' });
-      const result = await checkEditor(await user.getIdToken());
-      setState(
-        result.ok
-          ? { kind: 'ready', user }
-          : { kind: 'denied', user, message: result.message }
-      );
+    return onAuthStateChanged(clientAuth(), user => {
+      if (!user) setState({ kind: 'signed-out' });
+      else verify(user);
     });
-  }, []);
+  }, [verify]);
 
   if (!isFirebaseConfigured) {
     return (
@@ -124,24 +133,73 @@ export default function AdminProvider({
     );
   }
 
-  if (state.kind === 'denied') {
+  if (state.kind === 'error') {
     return (
       <Panel>
-        <h1 className="font-display text-2xl">No editor access</h1>
-        <p className="mt-3 text-gray-700">{state.message}</p>
-        <p className="mt-3 text-sm text-gray-600">
-          Ask a maintainer to add this user ID to the editors list:
-          <code className="mt-2 block rounded bg-gray-100 px-2 py-1 font-mono text-xs break-all">
-            {state.user.uid}
-          </code>
+        <h1 className="font-display text-2xl">
+          We couldn&apos;t check your access
+        </h1>
+        <p className="mt-3 text-gray-700">
+          Something went wrong talking to the server. Reloading the page usually
+          fixes it, especially right after the site was updated.
         </p>
-        <button
-          type="button"
-          onClick={() => signOut(clientAuth())}
-          className="mt-6 text-sm font-bold text-primary-700 underline underline-offset-4"
-        >
-          Sign out
-        </button>
+        <p className="mt-3 rounded bg-gray-100 px-2 py-1 font-mono text-xs break-all text-gray-700">
+          {state.message}
+        </p>
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-full bg-primary-700 px-5 py-2.5 font-bold text-white hover:bg-primary-800"
+          >
+            Reload
+          </button>
+          <button
+            type="button"
+            onClick={() => signOut(clientAuth())}
+            className="text-sm font-bold text-primary-700 underline underline-offset-4"
+          >
+            Sign out
+          </button>
+        </div>
+      </Panel>
+    );
+  }
+
+  if (state.kind === 'pending') {
+    return (
+      <Panel>
+        <Clock
+          className="mx-auto h-10 w-10 text-balayong-500"
+          aria-hidden="true"
+        />
+        <h1 className="mt-4 font-display text-3xl">Waiting for access</h1>
+        <p className="mt-3 text-gray-700">
+          Thanks for signing in, {state.user.displayName ?? 'there'}. A
+          maintainer needs to approve your account before you can write posts.
+        </p>
+        <p className="mt-3 text-sm text-gray-600">
+          Send them this user ID so they can add you:
+        </p>
+        <code className="mt-2 block rounded bg-gray-100 px-2 py-1 font-mono text-xs break-all">
+          {state.user.uid}
+        </code>
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => verify(state.user)}
+            className="rounded-full bg-primary-700 px-5 py-2.5 font-bold text-white hover:bg-primary-800"
+          >
+            Check again
+          </button>
+          <button
+            type="button"
+            onClick={() => signOut(clientAuth())}
+            className="text-sm font-bold text-primary-700 underline underline-offset-4"
+          >
+            Sign out
+          </button>
+        </div>
       </Panel>
     );
   }
