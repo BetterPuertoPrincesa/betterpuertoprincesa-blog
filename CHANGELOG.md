@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.3.0...v1.3.1) (2026-11-08)
+
+### Bug Fixes
+
+- load firebase-admin auth on vercel ([#6](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/issues/6)) ([7ddd3cc](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/commit/7ddd3ccc13bab0cb065d44fa4819061cc5968cb4))
+
 ## [1.3.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.2.0...v1.3.0) (2026-11-08)
 
 ### Features
