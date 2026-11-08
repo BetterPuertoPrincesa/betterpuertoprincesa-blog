@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.4.0...v1.5.0) (2026-11-08)
+
+### Features
+
+- **editor:** add a cover size hint under the upload button ([#8](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/issues/8)) ([a3a750b](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/commit/a3a750b11664a0760fea4818bb2a1d4b5ca647a1))
+
 ## [1.4.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.3.1...v1.4.0) (2026-11-08)
 
 ### Features
