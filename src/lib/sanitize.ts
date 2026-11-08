@@ -25,13 +25,18 @@ const options: sanitizeHtml.IOptions = {
   ],
   allowedAttributes: {
     a: ['href', 'target', 'rel'],
-    img: ['src', 'alt', 'title'],
+    img: ['src', 'alt', 'title', 'loading', 'decoding'],
     ol: ['start'],
   },
   allowedSchemes: ['https', 'mailto', 'tel'],
   allowedSchemesByTag: { img: ['https'] },
   allowProtocolRelative: false,
   transformTags: {
+    // Images in a post load only as the reader scrolls near them.
+    img: (tagName, attribs) => ({
+      tagName,
+      attribs: { ...attribs, loading: 'lazy', decoding: 'async' },
+    }),
     a: (tagName, attribs) => {
       const href = attribs.href ?? '';
       const attrs: sanitizeHtml.Attributes = { href };
