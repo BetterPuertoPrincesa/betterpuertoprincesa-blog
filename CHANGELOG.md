@@ -1,3 +1,9 @@
+## [1.5.1](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.5.0...v1.5.1) (2026-11-08)
+
+### Performance Improvements
+
+- cache post pages and lighten image loading ([#9](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/issues/9)) ([28135f6](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/commit/28135f6da778beacbc82642c1fcb7260e0f25777))
+
 ## [1.5.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.4.0...v1.5.0) (2026-11-08)
 
 ### Features
