@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.3.1...v1.4.0) (2026-11-08)
+
+### Features
+
+- **editor:** clean up images, name them after the post, show progress ([#7](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/issues/7)) ([5805810](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/commit/5805810c897813eaa8c2f738e7c2e014d8837183))
+
 ## [1.3.1](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.3.0...v1.3.1) (2026-11-08)
 
 ### Bug Fixes
