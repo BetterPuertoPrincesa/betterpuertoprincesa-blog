@@ -1,0 +1,36 @@
+name: Release
+
+# Conventional Commits on `main` drive semantic-release: it inspects commit
+# types (feat/fix/perf/etc.) since the last tag to decide the next version,
+# bumps package.json, writes CHANGELOG.md, tags, and cuts a GitHub Release.
+# Deploys are handled by Vercel's Git integration, not this workflow: every
+# push to `main` goes to production, and the version-bump commit pushed here
+# is skipped through `ignoreCommand` in vercel.json.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Semantic Release (version, changelog, tag, GitHub release)
+        env:
+          GITHUB_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+        run: npx semantic-release
