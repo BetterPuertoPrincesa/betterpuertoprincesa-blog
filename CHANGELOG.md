@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.1.0...v1.2.0) (2026-11-08)
+
+### Features
+
+- add share buttons and link preview images ([#4](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/issues/4)) ([349fa72](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/commit/349fa72807fe2f65bad2aa6ccc13b658c5d6010c))
+
 ## [1.1.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.0.0...v1.1.0) (2026-11-08)
 
 ### Features
