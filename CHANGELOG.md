@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.2.0...v1.3.0) (2026-11-08)
+
+### Features
+
+- **admin:** add waiting for access screen and stop sign-in from loading forever ([#5](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/issues/5)) ([dd3db42](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/commit/dd3db42f266955ddec24891a961a408b9e2d7030))
+
 ## [1.2.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.1.0...v1.2.0) (2026-11-08)
 
 ### Features
