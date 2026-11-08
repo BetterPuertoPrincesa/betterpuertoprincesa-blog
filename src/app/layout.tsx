@@ -35,8 +35,8 @@ const youngSerif = Young_Serif({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: site.name,
-    template: `%s | ${site.name}`,
+    default: `Blog | ${site.titleSuffix}`,
+    template: `%s | ${site.titleSuffix}`,
   },
   description: site.description,
   applicationName: site.name,

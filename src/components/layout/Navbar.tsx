@@ -96,7 +96,7 @@ export default function Navbar({ pathname = '' }: { pathname?: string }) {
           >
             <Image
               src="/logos/logo.svg"
-              alt="Better Puerto Princesa"
+              alt="BetterPuertoPrincesa"
               width={851}
               height={418}
               priority

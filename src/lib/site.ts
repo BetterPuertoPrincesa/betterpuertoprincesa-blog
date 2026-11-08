@@ -15,10 +15,13 @@ function resolveSiteUrl() {
 }
 
 export const site = {
-  name: 'Better Puerto Princesa Blog',
+  name: 'BetterPuertoPrincesa.org Blog',
   shortName: 'BPP Blog',
+  // Browser tab titles: "Blog | BetterPuertoPrincesa.org" on the home
+  // page, "<page or post title> | BetterPuertoPrincesa.org" elsewhere.
+  titleSuffix: 'BetterPuertoPrincesa.org',
   description:
-    'Stories, explainers and updates from the volunteers behind BetterPuertoPrincesa.org, the community-powered portal of Puerto Princesa City, Palawan.',
+    'News, guides and updates from BetterPuertoPrincesa.org, the volunteer-run portal for the people of Puerto Princesa City, Palawan.',
   url: resolveSiteUrl().replace(/\/$/, ''),
   locale: 'en_PH',
   tagline: 'Run by volunteers in Puerto Princesa, Palawan.',
