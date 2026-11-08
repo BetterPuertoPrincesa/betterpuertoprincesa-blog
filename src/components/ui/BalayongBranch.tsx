@@ -53,9 +53,11 @@ const PETALS = Array.from({ length: 7 }, () => ({
   color: PINKS[1 + Math.floor(rand() * 3)],
 }));
 
-function Blossom({ x, y, r, turn, color }: Flower) {
+// A plain function returning <g>, not a component, so the drawing also
+// renders in link preview images (Satori only allows SVG elements in <svg>).
+function blossom({ x, y, r, turn, color }: Flower, key: number) {
   return (
-    <g transform={`translate(${x} ${y}) rotate(${turn})`}>
+    <g key={key} transform={`translate(${x} ${y}) rotate(${turn})`}>
       {[0, 72, 144, 216, 288].map(a => (
         <ellipse
           key={a}
@@ -72,10 +74,22 @@ function Blossom({ x, y, r, turn, color }: Flower) {
   );
 }
 
-export default function BalayongBranch({ className }: { className?: string }) {
+// width/height are only needed where CSS can't size the SVG, such as the
+// link preview images in src/lib/og.tsx.
+export default function BalayongBranch({
+  className,
+  width,
+  height,
+}: {
+  className?: string;
+  width?: number;
+  height?: number;
+}) {
   return (
     <svg
       viewBox="0 0 480 360"
+      width={width}
+      height={height}
       className={className}
       aria-hidden="true"
       focusable="false"
@@ -94,9 +108,7 @@ export default function BalayongBranch({ className }: { className?: string }) {
         strokeWidth={3}
         strokeLinecap="round"
       />
-      {FLOWERS.map((f, i) => (
-        <Blossom key={i} {...f} />
-      ))}
+      {FLOWERS.map(blossom)}
       {PETALS.map((p, i) => (
         <ellipse
           key={i}
