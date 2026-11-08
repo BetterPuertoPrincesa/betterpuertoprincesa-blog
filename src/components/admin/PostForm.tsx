@@ -320,6 +320,10 @@ export default function PostForm({ post }: { post?: Post }) {
             )}
           </div>
           {coverProgress !== null && <ProgressBar percent={coverProgress} />}
+          <p className="mt-1.5 text-xs text-gray-600">
+            Best at 1600 x 900 (landscape, 16:9). The post shows covers in that
+            shape, so keep the subject near the middle.
+          </p>
           {coverImage && (
             <input
               value={coverAlt}
