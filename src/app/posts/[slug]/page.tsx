@@ -6,9 +6,21 @@ import { notFound } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import { TagPill } from '@/components/blog/PostList';
 import ShareButtons from '@/components/blog/ShareButtons';
-import { getPublishedPost } from '@/lib/posts';
+import { getPublishedPost, getPublishedPosts } from '@/lib/posts';
 import { site } from '@/lib/site';
 import { formatDate } from '@/lib/utils';
+
+// Lets Vercel keep each finished post page in its cache, so readers are
+// served from the CDN instead of re-rendering and reading Firestore.
+// Posts published later are rendered on first visit and cached then.
+// Next needs at least one entry, so an empty blog uses a placeholder
+// that resolves to the not-found page.
+export async function generateStaticParams() {
+  const posts = await getPublishedPosts();
+  return posts.length
+    ? posts.map(post => ({ slug: post.slug }))
+    : [{ slug: 'no-posts-yet' }];
+}
 
 export async function generateMetadata({
   params,

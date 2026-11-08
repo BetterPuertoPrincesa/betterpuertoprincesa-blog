@@ -5,6 +5,14 @@ import PageHeader from '@/components/ui/PageHeader';
 import PostList from '@/components/blog/PostList';
 import { getAllTags, getPostsByTag } from '@/lib/posts';
 
+// Same caching as post pages; see posts/[slug]/page.tsx.
+export async function generateStaticParams() {
+  const tags = await getAllTags();
+  return tags.length
+    ? tags.map(tag => ({ tag: tag.slug }))
+    : [{ tag: 'no-topics-yet' }];
+}
+
 async function findTag(slug: string) {
   return (await getAllTags()).find(t => t.slug === slug);
 }

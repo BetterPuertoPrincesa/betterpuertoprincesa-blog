@@ -11,14 +11,20 @@ import BalayongBranch from '@/components/ui/BalayongBranch';
 export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = 'image/png';
 
-const asset = (...parts: string[]) => path.join(process.cwd(), ...parts);
-
 async function loadAssets() {
+  // Literal paths keep the deployment from bundling the whole project.
   const [serif, sansBold, sansRegular, logo] = await Promise.all([
-    readFile(asset('assets/fonts/YoungSerif-Regular.ttf')),
-    readFile(asset('assets/fonts/AtkinsonHyperlegibleNext-Bold.ttf')),
-    readFile(asset('assets/fonts/AtkinsonHyperlegibleNext-Regular.ttf')),
-    readFile(asset('public/logos/logo.svg'), 'utf8'),
+    readFile(path.join(process.cwd(), 'assets/fonts/YoungSerif-Regular.ttf')),
+    readFile(
+      path.join(process.cwd(), 'assets/fonts/AtkinsonHyperlegibleNext-Bold.ttf')
+    ),
+    readFile(
+      path.join(
+        process.cwd(),
+        'assets/fonts/AtkinsonHyperlegibleNext-Regular.ttf'
+      )
+    ),
+    readFile(path.join(process.cwd(), 'public/logos/logo.svg'), 'utf8'),
   ]);
   return {
     fonts: [

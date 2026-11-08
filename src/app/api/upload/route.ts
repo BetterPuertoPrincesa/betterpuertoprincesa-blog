@@ -2,6 +2,7 @@ import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { requireEditor } from '@/lib/editors';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_GIF_BYTES = 2 * 1024 * 1024;
 
 // Issues short-lived Vercel Blob upload tokens. The browser uploads the
 // file straight to Blob storage; this route only decides who may do it.
@@ -23,7 +24,9 @@ export async function POST(request: Request) {
         }
         return {
           allowedContentTypes: ['image/webp', 'image/jpeg', 'image/gif'],
-          maximumSizeInBytes: MAX_IMAGE_BYTES,
+          maximumSizeInBytes: pathname.endsWith('.gif')
+            ? MAX_GIF_BYTES
+            : MAX_IMAGE_BYTES,
           addRandomSuffix: true,
           cacheControlMaxAge: 60 * 60 * 24 * 365,
         };

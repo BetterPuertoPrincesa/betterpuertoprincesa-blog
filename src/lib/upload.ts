@@ -10,6 +10,9 @@ const MAX_DIMENSION = 1600;
 const WEBP_QUALITY = 0.82;
 const MAX_INPUT_BYTES = 25 * 1024 * 1024;
 const MAX_OUTPUT_BYTES = 5 * 1024 * 1024;
+// GIFs skip resizing so animations survive, which makes them the largest
+// files by far. Keep them small.
+const MAX_GIF_BYTES = 2 * 1024 * 1024;
 
 // GIFs are uploaded untouched so animations survive. SVGs are refused
 // because they can carry scripts.
@@ -70,6 +73,12 @@ export async function uploadImage(file: File, options: UploadOptions) {
   }
   if (file.size > MAX_INPUT_BYTES) {
     throw new Error('That image is over 25 MB. Try a smaller one.');
+  }
+
+  if (file.type === 'image/gif' && file.size > MAX_GIF_BYTES) {
+    throw new Error(
+      'GIFs need to be 2 MB or smaller. Try a shorter clip or a still image.'
+    );
   }
 
   onProgress?.(0);

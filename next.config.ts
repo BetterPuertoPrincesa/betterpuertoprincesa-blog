@@ -10,6 +10,21 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
     ],
   },
+  // Logos and icons rarely change; let browsers keep them for a week.
+  async headers() {
+    return [
+      {
+        source:
+          '/:file(logos/.*|favicon.*|apple-touch-icon.png|web-app-manifest-.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=604800, stale-while-revalidate=86400',
+          },
+        ],
+      },
+    ];
+  },
   turbopack: {
     rules: {
       '*.css': {

@@ -75,7 +75,9 @@ export function withoutContent(post: Post): PostMeta {
 export async function getPublishedPosts(): Promise<PostMeta[]> {
   'use cache';
   cacheTag(POSTS_TAG);
-  cacheLife('hours');
+  // Saving or deleting a post refreshes this tag right away (updateTag in
+  // admin/actions.ts), so a long lifetime only cuts down on re-renders.
+  cacheLife('days');
 
   const db = getAdminDb();
   if (!db) return [];
@@ -91,7 +93,9 @@ export async function getPublishedPosts(): Promise<PostMeta[]> {
 export async function getPublishedPost(slug: string): Promise<Post | null> {
   'use cache';
   cacheTag(POSTS_TAG);
-  cacheLife('hours');
+  // Saving or deleting a post refreshes this tag right away (updateTag in
+  // admin/actions.ts), so a long lifetime only cuts down on re-renders.
+  cacheLife('days');
 
   const db = getAdminDb();
   if (!db || !/^[a-z0-9-]+$/.test(slug)) return null;
