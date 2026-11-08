@@ -1,0 +1,230 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+/* Theme tokens are ported from the main portal (betterpuertoprincesa
+   src/index.css). Keep the palettes in sync when the main site changes. */
+
+/* Fonts load through next/font in app/layout.tsx and arrive as CSS vars. */
+@theme inline {
+  --font-sans:
+    var(--font-atkinson), 'Atkinson Hyperlegible Next', ui-sans-serif,
+    system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-young-serif), Georgia, 'Times New Roman', serif;
+  --font-serif: var(--font-young-serif), Georgia, 'Times New Roman', serif;
+  --font-mono:
+    var(--font-atkinson-mono), 'Atkinson Hyperlegible Mono', ui-monospace,
+    monospace;
+}
+
+@theme {
+  /* Bay blue: Puerto Princesa Bay and Honda Bay. Interactive color:
+     links, buttons, focus, map water. */
+  --color-primary-50: #eef5fa;
+  --color-primary-100: #d6e7f3;
+  --color-primary-200: #adcfe6;
+  --color-primary-300: #7fb3d6;
+  --color-primary-400: #4c92c2;
+  --color-primary-500: #1f73ab;
+  --color-primary-600: #185d8d;
+  --color-primary-700: #134a71;
+  --color-primary-800: #0e3755;
+  --color-primary-900: #08233a;
+
+  --color-secondary-50: #ffede6;
+  --color-secondary-100: #ffdbcc;
+  --color-secondary-200: #ffb799;
+  --color-secondary-300: #ff9466;
+  --color-secondary-400: #ff7033;
+  --color-secondary-500: #ff4d00;
+  --color-secondary-600: #cc3e00;
+  --color-secondary-700: #992e00;
+  --color-secondary-800: #661f00;
+  --color-secondary-900: #330f00;
+
+  --color-accent-50: #fef3e6;
+  --color-accent-100: #fde7cc;
+  --color-accent-200: #fbd099;
+  --color-accent-300: #f9b866;
+  --color-accent-400: #f7a133;
+  --color-accent-500: #f58900;
+  --color-accent-600: #c46e00;
+  --color-accent-700: #935200;
+  --color-accent-800: #623700;
+  --color-accent-900: #311b00;
+
+  /* Balayong pink, from the blossoms of Puerto Princesa's city tree.
+     The site's signature color: page grounds, highlights, the hero.
+     Bay blue stays the color of things you can click. */
+  --color-balayong-50: #fdf2f6;
+  --color-balayong-100: #fbe3ec;
+  --color-balayong-200: #f7c6d8;
+  --color-balayong-300: #f09dbc;
+  --color-balayong-400: #e66f9b;
+  --color-balayong-500: #d94b7f;
+  --color-balayong-600: #bd3266;
+  --color-balayong-700: #9c2652;
+  --color-balayong-800: #7a1f42;
+  --color-balayong-900: #5a1832;
+
+  --color-success-50: #e6f7ef;
+  --color-success-100: #ccefdf;
+  --color-success-200: #99dfbf;
+  --color-success-300: #66cf9f;
+  --color-success-400: #33bf7f;
+  --color-success-500: #00af5f;
+  --color-success-600: #008c4c;
+  --color-success-700: #006939;
+  --color-success-800: #004626;
+  --color-success-900: #002313;
+
+  --color-warning-50: #fff8e6;
+  --color-warning-100: #fff1cc;
+  --color-warning-200: #ffe399;
+  --color-warning-300: #ffd566;
+  --color-warning-400: #ffc733;
+  --color-warning-500: #ffb900;
+  --color-warning-600: #cc9400;
+  --color-warning-700: #996f00;
+  --color-warning-800: #664a00;
+  --color-warning-900: #332500;
+
+  --color-error-50: #fceaea;
+  --color-error-100: #f9d5d5;
+  --color-error-200: #f3abab;
+  --color-error-300: #ed8282;
+  --color-error-400: #e75858;
+  --color-error-500: #e12e2e;
+  --color-error-600: #b42525;
+  --color-error-700: #871c1c;
+  --color-error-800: #5a1212;
+  --color-error-900: #2d0909;
+
+  /* Cool ink grays, pulled slightly toward the bay so text sits with
+     the blue rather than against it. */
+  --color-gray-50: #f8f9fa;
+  --color-gray-100: #f1f3f5;
+  --color-gray-200: #e6e9ec;
+  --color-gray-300: #d5dade;
+  --color-gray-400: #b3bbc2;
+  --color-gray-500: #87919a;
+  --color-gray-600: #626d77;
+  --color-gray-700: #45505b;
+  --color-gray-800: #2c3640;
+  --color-gray-900: #17212b;
+
+  --animate-fade-in: fadeIn 0.5s ease-in-out;
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+}
+
+/* In a layer so Tailwind utilities (e.g. font-sans on an h3) still win. */
+@layer base {
+  body {
+    background: #fff;
+    color: var(--color-gray-900);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-balayong-400);
+    outline-offset: 2px;
+  }
+}
+
+::selection {
+  background: var(--color-balayong-200);
+  color: var(--color-balayong-900);
+}
+
+/* Same capped container as the main portal. */
+.container {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* Article body: @tailwindcss/typography tuned to the portal palette.
+   Headings use the display serif; links stay bay blue (the "clickable"
+   color); quotes and highlights lean on balayong pink. */
+.prose-bpp {
+  --tw-prose-body: var(--color-gray-700);
+  --tw-prose-headings: var(--color-gray-900);
+  --tw-prose-lead: var(--color-gray-600);
+  --tw-prose-links: var(--color-primary-600);
+  --tw-prose-bold: var(--color-gray-900);
+  --tw-prose-counters: var(--color-gray-500);
+  --tw-prose-bullets: var(--color-balayong-400);
+  --tw-prose-hr: var(--color-gray-200);
+  --tw-prose-quotes: var(--color-gray-800);
+  --tw-prose-quote-borders: var(--color-balayong-400);
+  --tw-prose-captions: var(--color-gray-500);
+  --tw-prose-code: var(--color-gray-900);
+  --tw-prose-pre-code: var(--color-gray-100);
+  --tw-prose-pre-bg: var(--color-gray-900);
+  --tw-prose-th-borders: var(--color-gray-300);
+  --tw-prose-td-borders: var(--color-gray-200);
+}
+
+.prose-bpp :where(h1, h2, h3, h4):not(:where(.not-prose *)) {
+  font-family: var(--font-display);
+  font-weight: 400;
+  scroll-margin-top: 7rem;
+}
+
+.prose-bpp :where(a):not(:where(.not-prose *)) {
+  text-underline-offset: 3px;
+  transition: color 150ms;
+}
+
+.prose-bpp :where(a):not(:where(.not-prose *)):hover {
+  color: var(--color-primary-800);
+}
+
+.prose-bpp :where(blockquote):not(:where(.not-prose *)) {
+  background: var(--color-balayong-50);
+  border-radius: 0 0.5rem 0.5rem 0;
+  padding: 0.75rem 1.25rem;
+  font-style: normal;
+}
+
+.prose-bpp :where(code):not(:where(pre *, .not-prose *)) {
+  background: var(--color-gray-100);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  font-weight: 500;
+}
+
+.prose-bpp :where(code):not(:where(pre *, .not-prose *))::before,
+.prose-bpp :where(code):not(:where(pre *, .not-prose *))::after {
+  content: none;
+}
+
+/* Editor placeholder and selected image, for the Tiptap editor in /admin. */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--color-gray-400);
+}
+
+.tiptap img.ProseMirror-selectednode {
+  outline: 3px solid var(--color-primary-400);
+}
