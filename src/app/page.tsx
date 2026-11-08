@@ -8,8 +8,9 @@ export default async function HomePage() {
   return (
     <>
       <PageHeader
-        title="Notes from the bay"
-        subtitle="What we're building at BetterPuertoPrincesa.org, why it matters, and plain-language explainers on how the city works."
+        eyebrow="BetterPuertoPrincesa.org"
+        title="The Better Puerto Princesa Blog"
+        subtitle="News, guides and updates from the volunteers building a better portal for Puerto Princesa. Learn what's new on the site, how to get things done at City Hall, and where your city's money goes."
         breadcrumbs={[
           {
             label: 'BetterPuertoPrincesa.org',
