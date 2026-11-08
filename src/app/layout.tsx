@@ -50,6 +50,9 @@ export const metadata: Metadata = {
     locale: site.locale,
     url: '/',
   },
+  twitter: {
+    card: 'summary_large_image',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },

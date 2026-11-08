@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageHeader from '@/components/ui/PageHeader';
 import { TagPill } from '@/components/blog/PostList';
+import ShareButtons from '@/components/blog/ShareButtons';
 import { getPublishedPost } from '@/lib/posts';
 import { site } from '@/lib/site';
 import { formatDate } from '@/lib/utils';
@@ -29,9 +30,6 @@ export async function generateMetadata({
       modifiedTime: post.updatedAt,
       authors: [post.author],
       tags: post.tags,
-      images: post.coverImage
-        ? [{ url: post.coverImage, alt: post.coverAlt ?? '' }]
-        : undefined,
     },
   };
 }
@@ -50,6 +48,7 @@ async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await getPublishedPost(slug);
   if (!post) notFound();
+  const postUrl = `${site.url}/posts/${post.slug}`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -60,7 +59,7 @@ async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
     dateModified: post.updatedAt ?? post.publishedAt,
     author: { '@type': 'Person', name: post.author },
     image: post.coverImage,
-    mainEntityOfPage: `${site.url}/posts/${post.slug}`,
+    mainEntityOfPage: postUrl,
     publisher: { '@type': 'Organization', name: 'BetterPuertoPrincesa' },
   };
 
@@ -86,6 +85,7 @@ async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
           )}
           <span>{post.readingMinutes} min read</span>
         </div>
+        <ShareButtons url={postUrl} title={post.title} className="mt-5" />
       </PageHeader>
 
       <div className="container mx-auto px-4 py-10 md:py-14">
@@ -98,8 +98,7 @@ async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
                 width={1400}
                 height={788}
                 priority
-                // Already resized in the browser on upload; skip Vercel's
-                // image optimization to stay within the free plan.
+                // Already resized in the browser on upload.
                 unoptimized
                 sizes="(min-width: 768px) 70ch, 100vw"
                 className="aspect-[16/9] w-full rounded-xl object-cover"
@@ -118,7 +117,8 @@ async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
-          <footer className="mt-12 border-t border-gray-200 pt-6">
+          <footer className="mt-12 space-y-5 border-t border-gray-200 pt-6">
+            <ShareButtons url={postUrl} title={post.title} />
             {post.tags.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-bold text-gray-700">Topics</span>
@@ -129,7 +129,7 @@ async function PostContent({ params }: { params: Promise<{ slug: string }> }) {
             )}
             <Link
               href="/"
-              className="mt-6 inline-block font-bold text-primary-700 underline-offset-4 hover:underline"
+              className="inline-block font-bold text-primary-700 underline-offset-4 hover:underline"
             >
               More from the blog
             </Link>
