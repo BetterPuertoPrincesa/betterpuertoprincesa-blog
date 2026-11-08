@@ -16,13 +16,35 @@ const field =
   'mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-primary-400 focus:outline-none';
 const label = 'block text-sm font-bold text-gray-800';
 
+export function ProgressBar({ percent }: { percent: number }) {
+  return (
+    <div
+      role="progressbar"
+      aria-label="Upload progress"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={percent}
+      className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200"
+    >
+      <div
+        className="h-full rounded-full bg-primary-600 transition-[width] duration-200"
+        style={{ width: `${percent}%` }}
+      />
+    </div>
+  );
+}
+
 export default function PostForm({ post }: { post?: Post }) {
   const { user, getToken } = useAdmin();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [uploadingCover, setUploadingCover] = useState(false);
+  // null when idle, otherwise 0 to 100.
+  const [coverProgress, setCoverProgress] = useState<number | null>(null);
+  // Uploaded during this editing session; sent on save so any that were
+  // removed again get deleted from storage.
+  const [uploads, setUploads] = useState<string[]>([]);
 
   const [title, setTitle] = useState(post?.title ?? '');
   const [slug, setSlug] = useState(post?.slug ?? '');
@@ -35,8 +57,21 @@ export default function PostForm({ post }: { post?: Post }) {
   const [content, setContent] = useState(post?.content ?? '');
   const status: PostStatus = post?.status ?? 'draft';
 
-  const upload = async (file: File) =>
-    uploadImage(file, user.uid, await getToken());
+  const upload = async (
+    file: File,
+    kind: 'cover' | 'inline',
+    onProgress?: (percent: number) => void
+  ) => {
+    const url = await uploadImage(file, {
+      uid: user.uid,
+      idToken: await getToken(),
+      // Files are named after the post, e.g. my-post-title-cover-x7Ab.webp
+      name: `${title.trim() || 'untitled'}${kind === 'cover' ? ' cover' : ''}`,
+      onProgress,
+    });
+    setUploads(list => [...list, url]);
+    return url;
+  };
 
   const submit = (nextStatus: PostStatus) => {
     setError(null);
@@ -51,6 +86,7 @@ export default function PostForm({ post }: { post?: Post }) {
       coverAlt,
       content,
       status: nextStatus,
+      uploads,
     };
     startTransition(async () => {
       try {
@@ -58,6 +94,7 @@ export default function PostForm({ post }: { post?: Post }) {
           savePost(await getToken(), post?.id ?? null, input)
         );
         setSlug(saved.slug);
+        setUploads([]);
         if (!post) {
           router.replace(`/admin/edit/${saved.id}`);
         } else {
@@ -114,7 +151,9 @@ export default function PostForm({ post }: { post?: Post }) {
             <RichTextEditor
               initialContent={content}
               onChange={setContent}
-              onUploadImage={upload}
+              onUploadImage={(file, onProgress) =>
+                upload(file, 'inline', onProgress)
+              }
             />
           </div>
         </div>
@@ -243,8 +282,8 @@ export default function PostForm({ post }: { post?: Post }) {
           )}
           <div className="mt-2 flex items-center gap-3">
             <label className="cursor-pointer rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm font-bold text-gray-800 hover:bg-gray-100">
-              {uploadingCover
-                ? 'Uploading...'
+              {coverProgress !== null
+                ? `Uploading ${coverProgress}%`
                 : coverImage
                   ? 'Replace'
                   : 'Upload'}
@@ -252,18 +291,20 @@ export default function PostForm({ post }: { post?: Post }) {
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
                 className="hidden"
-                disabled={uploadingCover}
+                disabled={coverProgress !== null}
                 onChange={async e => {
                   const file = e.target.files?.[0];
                   e.target.value = '';
                   if (!file) return;
-                  setUploadingCover(true);
+                  setCoverProgress(0);
                   try {
-                    setCoverImage(await upload(file));
+                    setCoverImage(
+                      await upload(file, 'cover', setCoverProgress)
+                    );
                   } catch (err) {
                     setError((err as Error).message);
                   } finally {
-                    setUploadingCover(false);
+                    setCoverProgress(null);
                   }
                 }}
               />
@@ -278,6 +319,7 @@ export default function PostForm({ post }: { post?: Post }) {
               </button>
             )}
           </div>
+          {coverProgress !== null && <ProgressBar percent={coverProgress} />}
           {coverImage && (
             <input
               value={coverAlt}

@@ -1,6 +1,7 @@
 'use client';
 
 import { upload } from '@vercel/blob/client';
+import { slugify } from './utils';
 
 // Images are resized in the browser before upload, so Blob only stores
 // web-ready files and pages can serve them as-is without Vercel's image
@@ -49,9 +50,20 @@ async function resize(file: File): Promise<Blob> {
   return jpeg;
 }
 
+export interface UploadOptions {
+  uid: string;
+  idToken: string;
+  /** Used as the file name, e.g. the post title. A random ending is added
+   *  by the server so uploads never overwrite each other. */
+  name: string;
+  /** Called with 0 to 100 as the file uploads. */
+  onProgress?: (percent: number) => void;
+}
+
 /** Resizes (when needed) and uploads an image to Vercel Blob, returning
  *  its public URL. The upload route checks the editor's ID token first. */
-export async function uploadImage(file: File, uid: string, idToken: string) {
+export async function uploadImage(file: File, options: UploadOptions) {
+  const { uid, idToken, name, onProgress } = options;
   const resizable = RESIZABLE.includes(file.type);
   if (!resizable && !PASS_THROUGH.includes(file.type)) {
     throw new Error('Use a JPG, PNG, WebP or GIF image.');
@@ -60,6 +72,7 @@ export async function uploadImage(file: File, uid: string, idToken: string) {
     throw new Error('That image is over 25 MB. Try a smaller one.');
   }
 
+  onProgress?.(0);
   const body = resizable ? await resize(file) : file;
   if (body.size > MAX_OUTPUT_BYTES) {
     throw new Error('That image is still over 5 MB after resizing.');
@@ -71,18 +84,16 @@ export async function uploadImage(file: File, uid: string, idToken: string) {
       : body.type === 'image/gif'
         ? 'gif'
         : 'jpg';
-  const base =
-    file.name
-      .toLowerCase()
-      .replace(/\.[^.]+$/, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') || 'image';
+  const base = slugify(name).slice(0, 80).replace(/-+$/, '') || 'untitled';
 
   const blob = await upload(`blog-images/${uid}/${base}.${ext}`, body, {
     access: 'public',
     handleUploadUrl: '/api/upload',
     clientPayload: JSON.stringify({ idToken }),
     contentType: body.type,
+    onUploadProgress: ({ percentage }) =>
+      onProgress?.(Math.min(100, Math.round(percentage))),
   });
+  onProgress?.(100);
   return blob.url;
 }

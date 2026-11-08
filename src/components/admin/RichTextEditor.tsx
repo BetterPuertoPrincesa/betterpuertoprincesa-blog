@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   EditorContent,
   useEditor,
@@ -229,9 +229,13 @@ export default function RichTextEditor({
 }: {
   initialContent: string;
   onChange: (html: string) => void;
-  onUploadImage: (file: File) => Promise<string>;
+  onUploadImage: (
+    file: File,
+    onProgress: (percent: number) => void
+  ) => Promise<string>;
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
+  const [progress, setProgress] = useState<number | null>(null);
 
   const editor = useEditor({
     // Avoid a hydration mismatch: the editor only exists in the browser.
@@ -256,8 +260,9 @@ export default function RichTextEditor({
 
   const insertImage = async (file: File) => {
     if (!editor) return;
+    setProgress(0);
     try {
-      const src = await onUploadImage(file);
+      const src = await onUploadImage(file, setProgress);
       const alt =
         window.prompt(
           'Describe the image for people using screen readers',
@@ -266,6 +271,8 @@ export default function RichTextEditor({
       editor.chain().focus().setImage({ src, alt }).run();
     } catch (e) {
       window.alert((e as Error).message);
+    } finally {
+      setProgress(null);
     }
   };
 
@@ -274,10 +281,30 @@ export default function RichTextEditor({
       {editor ? (
         <Toolbar
           editor={editor}
-          onPickImage={() => fileInput.current?.click()}
+          onPickImage={() => {
+            if (progress === null) fileInput.current?.click();
+          }}
         />
       ) : (
         <div className="h-12 border-b border-gray-200" />
+      )}
+      {progress !== null && (
+        <div className="flex items-center gap-3 border-b border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-700">
+          <span className="shrink-0">Uploading image {progress}%</span>
+          <div
+            role="progressbar"
+            aria-label="Image upload progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progress}
+            className="h-2 w-full overflow-hidden rounded-full bg-gray-200"
+          >
+            <div
+              className="h-full rounded-full bg-primary-600 transition-[width] duration-200"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
       )}
       <EditorContent editor={editor} />
       <input

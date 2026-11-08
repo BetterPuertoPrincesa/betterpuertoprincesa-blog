@@ -3,6 +3,7 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { updateTag } from 'next/cache';
 import type { ActionResult } from '@/lib/action-result';
+import { deleteImages, imagesInPost, isBlogImage } from '@/lib/blob-images';
 import { NotEditorError, requireEditor } from '@/lib/editors';
 import {
   POSTS_COLLECTION,
@@ -86,6 +87,9 @@ export interface PostInput {
   coverAlt: string;
   content: string;
   status: PostStatus;
+  /** Images uploaded while editing, so ones removed before saving get
+   *  cleaned up too. */
+  uploads: string[];
 }
 
 export async function savePost(
@@ -129,6 +133,8 @@ async function savePostImpl(
   const existing = id ? await ref.get() : null;
   if (id && !existing?.exists) throw new Error('That post no longer exists.');
 
+  const content = sanitizePostHtml(input.content);
+
   const data: Record<string, unknown> = {
     title,
     slug,
@@ -137,7 +143,7 @@ async function savePostImpl(
     tags: [...new Set(input.tags.map(t => t.trim()).filter(Boolean))],
     coverImage,
     coverAlt: input.coverAlt.trim(),
-    content: sanitizePostHtml(input.content),
+    content,
     status: input.status,
     updatedAt: FieldValue.serverTimestamp(),
     updatedBy: uid,
@@ -154,6 +160,17 @@ async function savePostImpl(
 
   await ref.set(data, { merge: true });
   updateTag(POSTS_TAG);
+
+  // Delete images this post no longer uses: ones it had before this save,
+  // plus anything uploaded while editing (only from the editor's own
+  // folder) that didn't end up in the post.
+  const inUse = imagesInPost(coverImage, content);
+  const before = existing
+    ? imagesInPost(existing.get('coverImage'), existing.get('content'))
+    : new Set<string>();
+  const uploaded = input.uploads.filter(url => isBlogImage(url, uid));
+  await deleteImages([...before, ...uploaded].filter(url => !inUse.has(url)));
+
   return { id: ref.id, slug };
 }
 
@@ -166,7 +183,12 @@ export async function deletePost(
 
 async function deletePostImpl(idToken: string, id: string) {
   const { db } = await requireEditor(idToken);
-  await db.collection(POSTS_COLLECTION).doc(id).delete();
+  const ref = db.collection(POSTS_COLLECTION).doc(id);
+  const doc = await ref.get();
+  await ref.delete();
   updateTag(POSTS_TAG);
+  if (doc.exists) {
+    await deleteImages(imagesInPost(doc.get('coverImage'), doc.get('content')));
+  }
   return null;
 }
