@@ -12,10 +12,19 @@ export const EMBED_HOSTS = [
   'observablehq.com',
   'www.canva.com',
   'www.youtube-nocookie.com',
+  's3.amazonaws.com',
 ] as const;
 
+// Shared hosts where anyone can publish pages: only these path prefixes
+// (one site's bucket) are allowed, never the whole host.
+const EMBED_PATH_PREFIXES: Partial<
+  Record<(typeof EMBED_HOSTS)[number], readonly string[]>
+> = {
+  's3.amazonaws.com': ['/embed.censusreporter.org/'],
+};
+
 export const EMBED_SITES =
-  'Datawrapper, Flourish, Google Sheets, Looker Studio, Tableau Public, Observable, Canva and YouTube';
+  'Datawrapper, Flourish, Google Sheets, Looker Studio, Tableau Public, Observable, Canva, Census Reporter and YouTube';
 
 export const DEFAULT_EMBED_HEIGHT = 480;
 const MIN_HEIGHT = 150;
@@ -48,13 +57,19 @@ function parseUrl(value: string) {
 export function isAllowedEmbedSrc(src: string | null | undefined) {
   if (!src) return false;
   const url = parseUrl(src);
-  return (
-    url !== null &&
-    url.protocol === 'https:' &&
-    url.username === '' &&
-    url.password === '' &&
-    (EMBED_HOSTS as readonly string[]).includes(url.hostname)
-  );
+  if (
+    url === null ||
+    url.protocol !== 'https:' ||
+    url.username !== '' ||
+    url.password !== '' ||
+    !(EMBED_HOSTS as readonly string[]).includes(url.hostname)
+  ) {
+    return false;
+  }
+  // pathname is already normalized, so "/../" can't climb out of a prefix.
+  const prefixes =
+    EMBED_PATH_PREFIXES[url.hostname as (typeof EMBED_HOSTS)[number]];
+  return !prefixes || prefixes.some(p => url.pathname.startsWith(p));
 }
 
 // Turns the share links people usually copy into their embeddable form.
