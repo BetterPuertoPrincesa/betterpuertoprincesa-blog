@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.5.1...v1.6.0) (2026-11-09)
+
+### Features
+
+- **editor:** embed charts and videos from approved sites ([#10](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/issues/10)) ([b5ce26a](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/commit/b5ce26a98878b74e45cb7158b29ac94dc5a1d6c9))
+
 ## [1.5.1](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.5.0...v1.5.1) (2026-11-08)
 
 ### Performance Improvements
