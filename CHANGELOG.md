@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.6.0...v1.7.0) (2026-11-09)
+
+### Features
+
+- **editor:** allow Census Reporter chart embeds ([#11](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/issues/11)) ([1312cd3](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/commit/1312cd3204cf3af7e40d44c52a55772bfecfde06))
+
 ## [1.6.0](https://github.com/BetterPuertoPrincesa/betterpuertoprincesa-blog/compare/v1.5.1...v1.6.0) (2026-11-09)
 
 ### Features
