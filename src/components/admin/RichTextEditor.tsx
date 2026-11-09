@@ -12,6 +12,7 @@ import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import {
   Bold,
+  ChartColumn,
   Code,
   Heading2,
   Heading3,
@@ -28,6 +29,8 @@ import {
   Undo2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { EMBED_SITES, parseEmbedInput } from '@/lib/embeds';
+import { Embed } from './EmbedExtension';
 
 function ToolButton({
   label,
@@ -103,6 +106,29 @@ function Toolbar({
       .focus()
       .extendMarkRange('link')
       .setLink({ href: url.trim() })
+      .run();
+  };
+
+  const addEmbed = () => {
+    const input = window.prompt(
+      `Paste a link or iframe embed code from ${EMBED_SITES}`,
+      ''
+    );
+    if (input === null || input.trim() === '') return;
+    const embed = parseEmbedInput(input);
+    if (!embed) {
+      window.alert(
+        `That link can't be embedded. Use a share link or iframe embed code from ${EMBED_SITES}.`
+      );
+      return;
+    }
+    const title = window.prompt(
+      'Describe what this shows, for people using screen readers',
+      embed.title
+    );
+    if (title === null) return;
+    chain()
+      .setEmbed({ ...embed, title: title.trim() || 'Embedded content' })
       .run();
   };
 
@@ -203,6 +229,9 @@ function Toolbar({
       <ToolButton label="Insert image" onClick={onPickImage}>
         <ImagePlus className={icon} />
       </ToolButton>
+      <ToolButton label="Embed chart or video" onClick={addEmbed}>
+        <ChartColumn className={icon} />
+      </ToolButton>
       {divider}
       <ToolButton
         label="Undo"
@@ -246,6 +275,7 @@ export default function RichTextEditor({
         link: { openOnClick: false, autolink: true, defaultProtocol: 'https' },
       }),
       Image,
+      Embed,
       Placeholder.configure({ placeholder: 'Start writing your story...' }),
     ],
     content: initialContent,

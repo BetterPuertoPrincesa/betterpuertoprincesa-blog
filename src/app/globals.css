@@ -228,3 +228,27 @@
 .tiptap img.ProseMirror-selectednode {
   outline: 3px solid var(--color-primary-400);
 }
+
+/* Embedded charts and videos (allowlist in lib/embeds.ts) */
+.prose-bpp iframe {
+  display: block;
+  width: 100%;
+  margin: 2em 0;
+  border: 0;
+  border-radius: 0.5rem;
+}
+
+.prose-bpp iframe[src^='https://www.youtube-nocookie.com/'] {
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+/* In the editor, clicks select the embed instead of going into it. */
+.tiptap iframe {
+  pointer-events: none;
+  background: var(--color-gray-50);
+}
+
+.tiptap iframe.ProseMirror-selectednode {
+  outline: 3px solid var(--color-primary-400);
+}
